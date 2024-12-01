@@ -1,0 +1,25 @@
+{
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.project.referencedLibraries": [
+    "lib/**/*.jar"
+],
+"sqltools.connections": [
+    {
+        "mysqlOptions": {
+            "authProtocol": "xprotocol",
+            "enableSsl": "Disabled"
+        },
+        "previewLimit": 50,
+        "server": "localhost",
+        "port": 33060,
+        "driver": "MySQL",
+        "name": "afc",
+        "group": "cs321",
+        "database": "Parks_and_Recreation",
+        "username": "root",
+        "password": "password1",
+        "connectionTimeout": 30
+    }
+]
+}
+
