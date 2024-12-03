@@ -6,5 +6,5 @@ module edu.gmu.cs321 {
     opens edu.gmu.cs321 to javafx.fxml;
     exports edu.gmu.cs321;
 
-    requires org.apache.poi.ooxml; // Include Apache POI for working with Word files
+    requires org.apache.poi.ooxml; 
 }

@@ -67,7 +67,6 @@ public class Database {
         return dependents;
     }
 
-    // Method to update a Dependent's data
     public static void updateDependent(Dependent dependent) {
         String query = "UPDATE dependent SET first_name = ?, last_name = ?, dob = ?, country = ?, relationship = ? WHERE a_number = ? AND first_name = ? AND last_name = ?";
         try (Connection conn = getConnection();
