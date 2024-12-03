@@ -100,7 +100,7 @@ public class Workflow {
             writer.write("Dependents:\n");
 
             for (Dependent dependent : immigrant.getDependents()) {
-                saveDependentToFile(immigrant, dependent); // Save dependents
+                saveDependentToFile(immigrant, dependent); 
             }
 
             writer.write("\n---\n");
@@ -112,7 +112,8 @@ public class Workflow {
     public static void saveDependentToFile(Immigrant immigrant, Dependent dependent) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/resources/workflow.txt", true))) {
             writer.write("ANumber: " + immigrant.aNumber + "\n");
-            writer.write("Name: " + dependent.firstName + " " + dependent.lastName + "\n");
+            writer.write("First Name: " + dependent.firstName + "\n");
+            writer.write("Last Name: " + dependent.lastName + "\n");
             writer.write("DOB: " + dependent.dob + "\n");
             writer.write("Country: " + dependent.country + "\n");
             writer.write("Relationship: " + dependent.relationship + "\n");

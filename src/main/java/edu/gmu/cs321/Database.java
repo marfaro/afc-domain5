@@ -1,21 +1,23 @@
 package edu.gmu.cs321;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Database {
 
     private static final String url = "jdbc:mysql://localhost:3306/afc";
-    private static final String userId = "root";  // Your MySQL username
-    private static final String password = "password1";  // Your MySQL password
+    private static final String userId = "root";  
+    private static final String password = "password1"; 
 
-    // Method to establish a connection to the database
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(url, userId, password);
     }
 
-    // Method to get an Immigrant by their A-Number
     public static Immigrant getImmigrantByANumber(String aNumber) {
         String query = "SELECT * FROM immigrant WHERE a_number = ?";
         try (Connection conn = getConnection();
@@ -38,10 +40,9 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // Return null if no immigrant is found
+        return null; 
     }
 
-    // Method to get Dependents by Immigrant's A-Number
     public static List<Dependent> getDependentsByANumber(String aNumber) {
         String query = "SELECT * FROM dependent WHERE a_number = ?";
         List<Dependent> dependents = new ArrayList<>();
@@ -89,7 +90,6 @@ public class Database {
         }
     }
 
-    // Method to submit a Dependent's data for approval (inserting into database)
     public static void submitDependentForApproval(Dependent dependent) {
         String query = "INSERT INTO dependent (a_number, first_name, last_name, dob, country, relationship) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
@@ -108,5 +108,23 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+	
+    public static String isUniqueDependent(Dependent dependent) {
+        String query = "SELECT * FROM dependent";
+        try (Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                if(rs.getString("first_name").equals(dependent.getFirstName()) && rs.getString("last_name").equals(dependent.getLastName()) && rs.getString("dob").equals(dependent.getDob())){
+					return rs.getString("a_number");
+				}
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+		
+		return null;
     }
 }
