@@ -135,7 +135,6 @@ public class Review extends Application {
         relationshipField = new TextField();
         grid.add(relationshipField, 1, 14);
 
-        // Navigation buttons
         Button previousButton = new Button("Previous");
         grid.add(previousButton, 0, 15);
 
@@ -236,7 +235,7 @@ public class Review extends Application {
     
         try (
             BufferedReader reader = new BufferedReader(new FileReader(sourceFile));
-            BufferedWriter writer = new BufferedWriter(new FileWriter(targetFile, true)) // 'true' for appending
+            BufferedWriter writer = new BufferedWriter(new FileWriter(targetFile, true)) 
         ) {
             StringBuilder currentBlock = new StringBuilder();
             String line;
@@ -315,7 +314,6 @@ public class Review extends Application {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             for (Immigrant immigrant : immigrants) {
     
-                // Write each dependent
                 for (Dependent dependent : immigrant.getDependents()) {
                     writer.write("ANumber: " + dependent.getANumber());
                     writer.newLine();

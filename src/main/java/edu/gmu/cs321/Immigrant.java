@@ -87,11 +87,10 @@ public class Immigrant {
 
 
     public void addDependent(Dependent dependent) {
-        // Ensure the dependents list is initialized before adding
         if (dependents == null) {
-            dependents = new ArrayList<>();  // Initialize the list if it was null
+            dependents = new ArrayList<>();  
         }
-        this.dependents.add(dependent);  // Add dependent to the list
+        this.dependents.add(dependent); 
     }
 
     public List<Dependent> getDependents() {
