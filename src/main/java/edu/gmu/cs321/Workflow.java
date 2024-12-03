@@ -100,7 +100,7 @@ public class Workflow {
             writer.write("Dependents:\n");
 
             for (Dependent dependent : immigrant.getDependents()) {
-                saveDependentToFile(immigrant, dependent); // Save dependents
+                saveDependentToFile(immigrant, dependent); 
             }
 
             writer.write("\n---\n");

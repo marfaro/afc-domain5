@@ -25,13 +25,11 @@ public class DependentForm {
         Stage dependentStage = new Stage();
         dependentStage.setTitle("Add Dependent");
 
-        // Create grid pane for the form
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
-        // Form fields
         Label firstNameLabel = new Label("First Name:");
         TextField firstNameField = new TextField();
         grid.add(firstNameLabel, 0, 1);
@@ -60,7 +58,6 @@ public class DependentForm {
         Button submitButton = new Button("Submit");
         grid.add(submitButton, 1, 6);
 
-        // Handle form submission
         submitButton.setOnAction(event -> {
 
             LocalDate lddob = dobPicker.getValue();
@@ -73,26 +70,22 @@ public class DependentForm {
                 dob = dobString;
             }
 
-            // Collect the dependent information from the form
             String firstName = firstNameField.getText();
             String lastName = lastNameField.getText();
-            // String dob = dobPicker.getValue().toString(); // Date picker value as String
+
             String country = countryField.getText();
             String relationship = relationshipField.getText();
 
-            // Create a dependent object and add it to the immigrant's dependents list
             Dependent dependent = new Dependent(firstName, lastName, dob, country, relationship);
 			String unique = Database.isUniqueDependent(dependent);
 			if(unique == null){
 				immigrant.addDependent(dependent);
 
-				// Pass the immigrant's data and the dependent info to Workflow to save to file
 				Workflow.saveDependentToFile(immigrant, dependent);
 
 				Alert alert = new Alert(Alert.AlertType.INFORMATION, "Dependent submitted successfully!");
 				alert.showAndWait();
 
-				// Close the dependent form window
 				dependentStage.close();
 			}else{
 				Alert alert = new Alert(Alert.AlertType.INFORMATION, "Dependent already exists under " + unique + ".");
@@ -100,13 +93,11 @@ public class DependentForm {
 			}
         });
 
-        // Set up and show the scene for the dependent form
         Scene scene = new Scene(grid, 400, 300);
         dependentStage.setScene(scene);
         dependentStage.show();
     }
 
-    // Getters for the data collected in the form
     public String getANumber() {
         return aNumber;
     }

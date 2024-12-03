@@ -23,7 +23,7 @@ public class Login extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Immigration System Login"); // login for all employees
+        primaryStage.setTitle("Immigration System Login"); 
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -31,7 +31,7 @@ public class Login extends Application {
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
-        Image logo = new Image("file:src/resources/uscis_logo.png"); // our logo
+        Image logo = new Image("file:src/resources/uscis_logo.png");
         ImageView logoView = new ImageView(logo);
         logoView.setFitHeight(100);
         logoView.setFitWidth(300);
@@ -61,18 +61,16 @@ public class Login extends Application {
         String password = passwordField.getText();
 
         if (authenticateDataEntry(userId, password)) {
-            // close the login window
+
             primaryStage.close();
 
-            // open data entry UI and pass the open connection
             Stage dataEntryStage = new Stage();
             DataEntry dataEntry = new DataEntry(Workflow.getInstance(userId), connection);
             dataEntry.start(dataEntryStage);
         } else if (authenticateReview(userId, password)) {
-            // close the login window
+
             primaryStage.close();
 
-            // open review UI
             Stage reviewStage = new Stage();
             Review review = new Review();
             review.start(reviewStage);
@@ -83,7 +81,6 @@ public class Login extends Application {
         });
 
         } catch (SQLException ex) {
-            // Show alert if the connection fails
             Alert errorAlert = new Alert(Alert.AlertType.ERROR, "Error accessing the database: " + ex.getMessage());
             errorAlert.showAndWait();
             ex.printStackTrace();

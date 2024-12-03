@@ -16,7 +16,7 @@ import java.util.List;
 
 public class DataEntry {
     private Workflow workflow;
-    private Connection connection; // Database connection
+    private Connection connection; 
 
     public DataEntry(Workflow workflow, Connection connection) {
         this.workflow = workflow;
@@ -26,7 +26,6 @@ public class DataEntry {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Immigrant Search");
 
-        // Create the search form UI layout
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
@@ -49,7 +48,7 @@ public class DataEntry {
         grid.add(lastNameField, 1, 2);
 
         Label dobLabel = new Label("Date of Birth:");
-        TextField dobField = new TextField();  // We'll allow the user to enter dob as a string for simplicity
+        TextField dobField = new TextField(); 
         grid.add(dobLabel, 0, 3);
         grid.add(dobField, 1, 3);
 
@@ -61,14 +60,13 @@ public class DataEntry {
             String aNumber = aNumberField.getText();
             String firstName = firstNameField.getText();
             String lastName = lastNameField.getText();
-            String dob = dobField.getText(); // Expecting the format as mm/dd/yyyy or similar
+            String dob = dobField.getText(); 
 
-            // Validate inputs before searching
             if (aNumber.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || dob.isEmpty()) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "All fields must be filled in.");
                 alert.showAndWait();
             } else {
-                // Perform the immigrant search using ImmigrantSearch
+
                 try {
                     List<Immigrant> immigrants = ImmigrantSearch.searchImmigrant(connection, aNumber, firstName, lastName, dob);
 
@@ -76,8 +74,8 @@ public class DataEntry {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION, "No immigrant found with the given details.");
                         alert.showAndWait();
                     } else {
-                        // Assuming we have only one result, we show it in a new window
-                        Immigrant immigrant = immigrants.get(0);  // Assuming first match is the correct one
+
+                        Immigrant immigrant = immigrants.get(0);  
                         showImmigrantDetails(immigrant);
                     }
 
@@ -89,25 +87,21 @@ public class DataEntry {
             }
         });
 
-        // Set up the scene and show it
         Scene scene = new Scene(grid, 400, 300);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    // Method to show the immigrant details in a new window
     private void showImmigrantDetails(Immigrant immigrant) {
         Stage detailsStage = new Stage();
         detailsStage.setTitle("Immigrant Details");
 
-        // Create the details UI layout
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 20, 20, 20));
 
-        // Populate the fields with immigrant details
         Label aNumberLabel = new Label("ANumber: " + immigrant.getANumber());
         grid.add(aNumberLabel, 0, 0);
 
@@ -129,13 +123,11 @@ public class DataEntry {
         Label addressLabel = new Label("Address: " + immigrant.getAddress());
         grid.add(addressLabel, 0, 6);
 
-         // Add Dependent button
     Button addDependentButton = new Button("Add Dependent");
-    grid.add(addDependentButton, 1, 7); // Position it after the Address label or wherever you want
+    grid.add(addDependentButton, 1, 7); 
 
-    // Action for Add Dependent button
     addDependentButton.setOnAction(e -> {
-        // Call the method to open the DependentForm window to enter dependent info
+
         DependentForm.openDependentForm(detailsStage, immigrant);
     });
 
@@ -143,7 +135,6 @@ public class DataEntry {
         closeButton.setOnAction(e -> detailsStage.close());
         grid.add(closeButton, 0, 7);
 
-        // Set the scene and show it
         Scene scene = new Scene(grid, 400, 400);
         detailsStage.setScene(scene);
         detailsStage.show();

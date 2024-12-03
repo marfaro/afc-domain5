@@ -20,10 +20,10 @@ public class Review extends Application {
 
     private List<Dependent> dependents = new ArrayList<>();
     private List<Immigrant> immigrants = new ArrayList<>();
-    private int currentIndex = 0;  // Index to track the current dependent being edited
+    private int currentIndex = 0;  
 
     private TextField aNumberField, firstNameField, lastNameField, dobField, countryField, relationshipField, emailField, phoneField, addressField;
-    private Label immigrantDataLabel;  // To display immigrant's non-editable data
+    private Label immigrantDataLabel;  
     private Label immigrantANumberLabel = new Label("ANumber:");
     private Label immigrantFirstNameLabel = new Label("First Name:");
     private Label immigrantLastNameLabel = new Label("Last Name:");
@@ -35,13 +35,12 @@ public class Review extends Application {
     private Button submitToApprovalButton = new Button("Submit to Approval");
     private Button saveButton = new Button("Save");
 
-    private Immigrant immigrant;  // Store the immigrant data
+    private Immigrant immigrant;  
 
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Review Dependents");
 
-        // Load dependents and immigrant data from workflow.txt
         loadWorkflowData();
 
         if (dependents.isEmpty()) {
@@ -51,59 +50,55 @@ public class Review extends Application {
             return;
         }
 
-        // Create the UI
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(50, 25, 50, 25));
 
-        // Immigrant data labels (non-editable)
     immigrantDataLabel = new Label("Immigrant: ");
     immigrantDataLabel.setStyle("-fx-font-weight: bold;"); 
     grid.add(immigrantDataLabel, 0, 0, 2, 1);
 
-    // Add labels for Immigrant Data fields
     immigrantANumberLabel = new Label("ANumber:");
     grid.add(immigrantANumberLabel, 0, 1);
-    this.immigrantANumberLabel = new Label();  // To display immigrant's ANumber
+    this.immigrantANumberLabel = new Label();  
     grid.add(this.immigrantANumberLabel, 1, 1);
 
     immigrantFirstNameLabel = new Label("First Name:");
     grid.add(immigrantFirstNameLabel, 0, 2);
-    this.immigrantFirstNameLabel = new Label();  // To display immigrant's First Name
+    this.immigrantFirstNameLabel = new Label();  
     grid.add(this.immigrantFirstNameLabel, 1, 2);
 
     immigrantLastNameLabel = new Label("Last Name:");
     grid.add(immigrantLastNameLabel, 0, 3);
-    this.immigrantLastNameLabel = new Label();  // To display immigrant's Last Name
+    this.immigrantLastNameLabel = new Label();  
     grid.add(this.immigrantLastNameLabel, 1, 3);
 
     immigrantDobLabel = new Label("Date of Birth:");
     grid.add(immigrantDobLabel, 0, 4);
-    this.immigrantDobLabel = new Label();  // To display immigrant's Date of Birth
+    this.immigrantDobLabel = new Label();  
     grid.add(this.immigrantDobLabel, 1, 4);
 
     immigrantEmailLabel = new Label("Email:");
     grid.add(immigrantEmailLabel, 0, 5);
-    this.immigrantEmailLabel = new Label();  // To display immigrant's Email
+    this.immigrantEmailLabel = new Label(); 
     grid.add(this.immigrantEmailLabel, 1, 5);
 
     immigrantPhoneLabel = new Label("Phone:");
     grid.add(immigrantPhoneLabel, 0, 6);
-    this.immigrantPhoneLabel = new Label();  // To display immigrant's Phone
+    this.immigrantPhoneLabel = new Label();  
     grid.add(this.immigrantPhoneLabel, 1, 6);
 
     immigrantAddressLabel = new Label("Address:");
     grid.add(immigrantAddressLabel, 0, 7);
-    this.immigrantAddressLabel = new Label();  // To display immigrant's Address
+    this.immigrantAddressLabel = new Label();  
     grid.add(this.immigrantAddressLabel, 1, 7);
 
     Label dependentDataLabel = new Label("Dependent: ");
     dependentDataLabel.setStyle("-fx-font-weight: bold;"); 
     grid.add(dependentDataLabel, 0, 8, 2, 1);
 
-        // Dependent data fields (editable)
         Label aNumberLabel = new Label("ANumber:");
         grid.add(aNumberLabel, 0, 9);
 
@@ -151,14 +146,11 @@ public class Review extends Application {
         
         grid.add(submitToApprovalButton,4, 15, 2, 1);
 
-
-        // Set initial data
         updateDependentFields(currentIndex);
 
         previousButton.setOnAction(e -> {
             if (currentIndex > 0) {
                 currentIndex--;
-                // Skip submitted dependents when moving backward
                 while (currentIndex > 0 && dependents.get(currentIndex).isSubmitted()) {
                     currentIndex--;
                 }
@@ -171,7 +163,6 @@ public class Review extends Application {
         nextButton.setOnAction(e -> {
             if (currentIndex < dependents.size() - 1) {
                 currentIndex++;
-                // Skip submitted dependents when moving forward
                 while (currentIndex < dependents.size() && dependents.get(currentIndex).isSubmitted()) {
                     currentIndex++;
                 }
@@ -183,120 +174,99 @@ public class Review extends Application {
         
 
         saveButton.setOnAction(e -> {
-            // Validate the input fields
             if (isInputValid()) {
-				
-                // Get the current dependent
+
                 Dependent dependent = dependents.get(currentIndex);
-        
-				//Validate uniqueness of updated information
+
 				String unique = Database.isUniqueDependent(dependent);
 				if(unique == null){
-		
-					// Update the dependent object with the new values
+
 					dependent.setANumber(aNumberField.getText());
 					dependent.setFirstName(firstNameField.getText());
 					dependent.setLastName(lastNameField.getText());
 					dependent.setDob(dobField.getText());
 					dependent.setCountry(countryField.getText());
 					dependent.setRelationship(relationshipField.getText());
-			
-					// Write updated data back to workflow.txt
+
 					saveWorkflowData();
-			
-					// Notify the user
+
 					Alert alert = new Alert(Alert.AlertType.INFORMATION, "Dependent data saved successfully!");
 					alert.showAndWait();
-					//updateUI();
 				} else {
-					//If dependent is not unique, show an alert.
+
 					Alert alert = new Alert(Alert.AlertType.ERROR, "Dependent already exists under entry " + unique + ".");
 					alert.showAndWait();
 				}
             } else {
-                // If input is invalid, show an alert
+
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Please fill in all required fields.");
                 alert.showAndWait();
             }
         });
 
         submitToApprovalButton.setOnAction(e -> {
-			//Validate uniqueness of dependent information before submitting for approval.
 			String unique = Database.isUniqueDependent(dependents.get(currentIndex));
 			if(unique == null){
-			
-				// Remove dependent data from workflow.txt and save it to workflow2.txt
+
 				submitToApproval();
 			} else {
 				Alert alert = new Alert(Alert.AlertType.ERROR, "Dependent already exists under entry " + unique + ".");
                 alert.showAndWait();
 			}
         });
-        
 
-        // Create and show the scene
         Scene scene = new Scene(grid, 550, 550);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     private void submitToApproval() {
-        // Define the source (workflow.txt) and target (workflow2.txt) files
         File sourceFile = new File("src/resources/workflow.txt");
         File targetFile = new File("src/resources/workflow2.txt");
-    
-        // Get the current dependent being edited
+
         Dependent dependent = dependents.get(currentIndex);
     
         dependent.setSubmitted(true);
-    
+
         submitToApprovalButton.setDisable(true);
         saveButton.setDisable(true);
-    
-        // Temporary list to hold the updated content of workflow.txt (without the submitted dependent)
+
         List<String> updatedWorkflowData = new ArrayList<>();
+        boolean dependentFound = false; 
     
         try (
             BufferedReader reader = new BufferedReader(new FileReader(sourceFile));
-            BufferedWriter writer = new BufferedWriter(new FileWriter(targetFile, true))
+            BufferedWriter writer = new BufferedWriter(new FileWriter(targetFile, true)) // 'true' for appending
         ) {
             StringBuilder currentBlock = new StringBuilder();
-            boolean isTargetDependent = false;
-            
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
+                
                 if (line.isEmpty()) {
-                    // Process the collected block for a dependent
-                    if (isTargetDependent) {
-                        // Write only this specific dependent to workflow2.txt
-                        writeDependentToApprovalFile(writer, dependent);
-                        isTargetDependent = false; // Reset after writing
-                    } else {
-                        // Add the block back to the workflow data if it's not the target dependent
-                        updatedWorkflowData.add(currentBlock.toString().trim());
+                    if (currentBlock.length() > 0) {
+                        if (!dependentFound && isTargetDependentBlock(currentBlock.toString(), dependent)) {
+                            writeDependentToApprovalFile(writer, currentBlock.toString());
+                            dependentFound = true; 
+                        } else {
+                            updatedWorkflowData.add(currentBlock.toString().trim());
+                        }
                     }
-                    // Reset for the next block
                     currentBlock.setLength(0);
                 } else {
-                    // Check if this block corresponds to the target dependent
-                    if (line.startsWith("ANumber: ") && line.equals("ANumber: " + dependent.getANumber())) {
-                        isTargetDependent = true; // We found the target dependent
-                    }
                     currentBlock.append(line).append(System.lineSeparator());
                 }
             }
-    
-            // Handle the last block (if the file doesn't end with a blank line)
+
             if (currentBlock.length() > 0) {
-                if (isTargetDependent) {
-                    writeDependentToApprovalFile(writer, dependent); // Write the target dependent
+                if (!dependentFound && isTargetDependentBlock(currentBlock.toString(), dependent)) {
+                    writeDependentToApprovalFile(writer, currentBlock.toString());
+                    dependentFound = true;
                 } else {
                     updatedWorkflowData.add(currentBlock.toString().trim());
                 }
             }
-    
-            // Write the updated workflow.txt data back without the submitted dependent
+
             try (BufferedWriter writerUpdate = new BufferedWriter(new FileWriter(sourceFile))) {
                 for (String block : updatedWorkflowData) {
                     writerUpdate.write(block);
@@ -304,8 +274,7 @@ public class Review extends Application {
                     writerUpdate.newLine();
                 }
             }
-    
-            // Notify the user
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Dependent submitted to approval!");
             alert.showAndWait();
     
@@ -317,22 +286,18 @@ public class Review extends Application {
     }
     
 
-    private void writeDependentToApprovalFile(BufferedWriter writer, Dependent dependent) throws IOException {
-        // Write the specific dependent's data to workflow2.txt
-        writer.write("ANumber: " + dependent.getANumber());
-        writer.newLine();
-        writer.write("First Name: " + dependent.getFirstName());
-        writer.newLine();
-        writer.write("Last Name: " + dependent.getLastName());
-        writer.newLine();
-        writer.write("DOB: " + dependent.getDob());
-        writer.newLine();
-        writer.write("Country: " + dependent.getCountry());
-        writer.newLine();
-        writer.write("Relationship: " + dependent.getRelationship());
-        writer.newLine();
-        
-        // Add a blank line after each dependent's data in workflow2.txt
+    private boolean isTargetDependentBlock(String block, Dependent dependent) {
+        String firstName = dependent.getFirstName();
+        String lastName = dependent.getLastName();
+        String dob = dependent.getDob();  
+
+        return block.contains("First Name: " + firstName) &&
+               block.contains("Last Name: " + lastName) &&
+               block.contains("DOB: " + dob);
+    }
+    
+    private void writeDependentToApprovalFile(BufferedWriter writer, String dependentBlock) throws IOException {
+        writer.write(dependentBlock);
         writer.newLine();
     }
     
@@ -383,21 +348,20 @@ public class Review extends Application {
     
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            Immigrant immigrant = null; // To store the immigrant related to the current dependent
-            Dependent dependent = null; // To store the current dependent being processed
+            Immigrant immigrant = null; 
+            Dependent dependent = null; 
     
             while ((line = reader.readLine()) != null) {
-                line = line.trim(); // Remove leading/trailing whitespaces
-    
-                // Skip empty lines or lines that don't contain a ":"
+                line = line.trim(); 
+
                 if (line.isEmpty() || !line.contains(":")) {
-                    continue;  // Skip malformed or empty lines
+                    continue;  
                 }
     
                 String[] parts = line.split(":");
                 if (parts.length < 2) {
                     System.out.println("Skipping malformed line: " + line);
-                    continue; // Skip lines where there is no valid data after ":"
+                    continue; 
                 }
     
                 String key = parts[0].trim();
@@ -405,32 +369,29 @@ public class Review extends Application {
     
                 if (key.equals("ANumber")) {
                     String aNumber = value;
-    
-                    // Check if this ANumber belongs to an existing Immigrant
+
                     immigrant = findImmigrantByANumber(aNumber);
                     if (immigrant == null) {
                         immigrant = new Immigrant(aNumber, "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown");
                         immigrants.add(immigrant);
                     }
-    
-                    // Display immigrant details in non-editable fields (assuming you have a UI for this)
+
                     displayImmigrantData(immigrant);
                 } else if (key.equals("First Name")) {
                     if (immigrant != null) {
-                        immigrant.setFirstName(value);  // Set for the immigrant
+                        immigrant.setFirstName(value); 
                     }
                 } else if (key.equals("Last Name")) {
                     if (immigrant != null) {
-                        immigrant.setLastName(value);  // Set last name for the immigrant
+                        immigrant.setLastName(value);  
                     }
                 } else if (key.equals("DOB")) {
                     if (immigrant != null) {
-                        immigrant.setDob(value);  // Set for the immigrant
+                        immigrant.setDob(value); 
                     }
                 } else if (key.equals("Country") && immigrant != null) {
-                    // Process dependent information if available
                     String country = value;
-                    String relationship = reader.readLine().trim().split(":")[1].trim(); // Next line is Relationship
+                    String relationship = reader.readLine().trim().split(":")[1].trim(); 
                     dependent = new Dependent(immigrant.getANumber(), immigrant.getFirstName(), immigrant.getLastName(), immigrant.getDob(), country, relationship);
                     dependents.add(dependent);
                     immigrant.addDependent(dependent);
@@ -448,14 +409,12 @@ public class Review extends Application {
                 return immigrant;
             }
         }
-        return null; // Return null if no immigrant found with this ANumber
+        return null; 
     }
 
     private void loadImmigrantData(String aNumber) {
-        // Fetch immigrant data from the database
         Immigrant immigrant = getImmigrantFromDatabase(aNumber);
-    
-        // Populate the fields with the retrieved immigrant data
+
         if (immigrant != null) {
             immigrantANumberLabel.setText(immigrant.getANumber());
             immigrantFirstNameLabel.setText(immigrant.getFirstName());
@@ -465,13 +424,11 @@ public class Review extends Application {
             immigrantPhoneLabel.setText(immigrant.getPhone());
             immigrantAddressLabel.setText(immigrant.getAddress());
         } else {
-            // Handle case where the immigrant data is not found
             System.out.println("Immigrant not found with ANumber: " + aNumber);
         }
     }
     
     private void displayImmigrantData(Immigrant immigrant) {
-        // Assuming you have text fields in the UI for each immigrant field, populate them
         immigrantANumberLabel.setText(immigrant.getANumber());
         immigrantFirstNameLabel.setText(immigrant.getFirstName());
         immigrantLastNameLabel.setText(immigrant.getLastName());
@@ -484,19 +441,15 @@ public class Review extends Application {
     public Immigrant getImmigrantFromDatabase(String aNumber) {
     Immigrant immigrant = null;
 
-    // SQL query to fetch the immigrant data by ANumber
     String query = "SELECT a_number, first_name, last_name, dob, email, phone, address FROM immigrant WHERE a_number = ?";
 
     try (Connection conn = Database.getConnection();
          PreparedStatement stmt = conn.prepareStatement(query)) {
 
-        // Set the ANumber parameter for the query
         stmt.setString(1, aNumber);
 
-        // Execute the query
         try (ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) {
-                // Create the immigrant object from the result set
                 immigrant = new Immigrant(
                     rs.getString("a_number"),
                     rs.getString("first_name"),
@@ -516,7 +469,6 @@ public class Review extends Application {
 
     
     private void updateDependentFields(int index) {
-        // Skip dependents that have already been submitted
         while (index < dependents.size() && dependents.get(index).isSubmitted()) {
             index++;
         }
