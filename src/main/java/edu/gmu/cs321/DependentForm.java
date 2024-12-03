@@ -82,16 +82,22 @@ public class DependentForm {
 
             // Create a dependent object and add it to the immigrant's dependents list
             Dependent dependent = new Dependent(firstName, lastName, dob, country, relationship);
-            immigrant.addDependent(dependent);
+			String unique = Database.isUniqueDependent(dependent);
+			if(unique == null){
+				immigrant.addDependent(dependent);
 
-            // Pass the immigrant's data and the dependent info to Workflow to save to file
-            Workflow.saveDependentToFile(immigrant, dependent);
+				// Pass the immigrant's data and the dependent info to Workflow to save to file
+				Workflow.saveDependentToFile(immigrant, dependent);
 
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Dependent submitted successfully!");
-            alert.showAndWait();
+				Alert alert = new Alert(Alert.AlertType.INFORMATION, "Dependent submitted successfully!");
+				alert.showAndWait();
 
-            // Close the dependent form window
-            dependentStage.close();
+				// Close the dependent form window
+				dependentStage.close();
+			}else{
+				Alert alert = new Alert(Alert.AlertType.INFORMATION, "Dependent already exists under " + unique + ".");
+				alert.showAndWait();
+			}
         });
 
         // Set up and show the scene for the dependent form

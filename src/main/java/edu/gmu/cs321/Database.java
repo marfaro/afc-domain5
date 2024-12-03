@@ -1,6 +1,10 @@
 package edu.gmu.cs321;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,5 +112,24 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+	
+	// Method to verify uniqueness of dependent within database.
+    public static String isUniqueDependent(Dependent dependent) {
+        String query = "SELECT * FROM dependent";
+        try (Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                if(rs.getString("first_name").equals(dependent.getFirstName()) && rs.getString("last_name").equals(dependent.getLastName()) && rs.getString("dob").equals(dependent.getDob())){
+					return rs.getString("a_number");
+				}
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+		
+		return null;
     }
 }

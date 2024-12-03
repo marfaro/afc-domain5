@@ -33,6 +33,7 @@ public class Review extends Application {
     private Label immigrantAddressLabel = new Label("Address:");
 
     private Button submitToApprovalButton = new Button("Submit to Approval");
+    private Button saveButton = new Button("Save");
 
     private Immigrant immigrant;  // Store the immigrant data
 
@@ -146,8 +147,6 @@ public class Review extends Application {
         Button nextButton = new Button("Next");
         grid.add(nextButton, 1, 15);
 
-        // Add Save button
-        Button saveButton = new Button("Save");
         grid.add(saveButton, 2, 15, 2, 1);
         
         grid.add(submitToApprovalButton,4, 15, 2, 1);
@@ -165,6 +164,7 @@ public class Review extends Application {
                 }
                 updateDependentFields(currentIndex);
                 submitToApprovalButton.setDisable(false);
+                saveButton.setDisable(false);
             }
         });
         
@@ -177,6 +177,7 @@ public class Review extends Application {
                 }
                 updateDependentFields(currentIndex);
                 submitToApprovalButton.setDisable(false);
+                saveButton.setDisable(false);
             }
         });
         
@@ -184,24 +185,34 @@ public class Review extends Application {
         saveButton.setOnAction(e -> {
             // Validate the input fields
             if (isInputValid()) {
+				
                 // Get the current dependent
                 Dependent dependent = dependents.get(currentIndex);
         
-                // Update the dependent object with the new values
-                dependent.setANumber(aNumberField.getText());
-                dependent.setFirstName(firstNameField.getText());
-                dependent.setLastName(lastNameField.getText());
-                dependent.setDob(dobField.getText());
-                dependent.setCountry(countryField.getText());
-                dependent.setRelationship(relationshipField.getText());
-        
-                // Write updated data back to workflow.txt
-                saveWorkflowData();
-        
-                // Notify the user
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Dependent data saved successfully!");
-                alert.showAndWait();
-                //updateUI();
+				//Validate uniqueness of updated information
+				String unique = Database.isUniqueDependent(dependent);
+				if(unique == null){
+		
+					// Update the dependent object with the new values
+					dependent.setANumber(aNumberField.getText());
+					dependent.setFirstName(firstNameField.getText());
+					dependent.setLastName(lastNameField.getText());
+					dependent.setDob(dobField.getText());
+					dependent.setCountry(countryField.getText());
+					dependent.setRelationship(relationshipField.getText());
+			
+					// Write updated data back to workflow.txt
+					saveWorkflowData();
+			
+					// Notify the user
+					Alert alert = new Alert(Alert.AlertType.INFORMATION, "Dependent data saved successfully!");
+					alert.showAndWait();
+					//updateUI();
+				} else {
+					//If dependent is not unique, show an alert.
+					Alert alert = new Alert(Alert.AlertType.ERROR, "Dependent already exists under entry " + unique + ".");
+					alert.showAndWait();
+				}
             } else {
                 // If input is invalid, show an alert
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Please fill in all required fields.");
@@ -210,8 +221,16 @@ public class Review extends Application {
         });
 
         submitToApprovalButton.setOnAction(e -> {
-            // Remove dependent data from workflow.txt and save it to workflow2.txt
-            submitToApproval();
+			//Validate uniqueness of dependent information before submitting for approval.
+			String unique = Database.isUniqueDependent(dependents.get(currentIndex));
+			if(unique == null){
+			
+				// Remove dependent data from workflow.txt and save it to workflow2.txt
+				submitToApproval();
+			} else {
+				Alert alert = new Alert(Alert.AlertType.ERROR, "Dependent already exists under entry " + unique + ".");
+                alert.showAndWait();
+			}
         });
         
 
@@ -221,7 +240,6 @@ public class Review extends Application {
         primaryStage.show();
     }
 
-
     private void submitToApproval() {
         // Define the source (workflow.txt) and target (workflow2.txt) files
         File sourceFile = new File("src/resources/workflow.txt");
@@ -229,60 +247,65 @@ public class Review extends Application {
     
         // Get the current dependent being edited
         Dependent dependent = dependents.get(currentIndex);
-
-        dependent.setSubmitted(true); 
+    
+        dependent.setSubmitted(true);
     
         submitToApprovalButton.setDisable(true);
-
+        saveButton.setDisable(true);
+    
         // Temporary list to hold the updated content of workflow.txt (without the submitted dependent)
         List<String> updatedWorkflowData = new ArrayList<>();
-        boolean dependentRemoved = false;
     
         try (
             BufferedReader reader = new BufferedReader(new FileReader(sourceFile));
             BufferedWriter writer = new BufferedWriter(new FileWriter(targetFile, true))
         ) {
+            StringBuilder currentBlock = new StringBuilder();
+            boolean isTargetDependent = false;
+            
             String line;
-            List<String> dependentData = new ArrayList<>();
-            boolean isSubmittingDependent = false;
-    
-            // Read each line from workflow.txt
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty()) continue;
-    
-                // Start collecting data when we find the dependent block based on ANumber
-                if (line.startsWith("ANumber: " + dependent.getANumber())) {
-                    isSubmittingDependent = true;
-                    // Write the dependent's data to workflow2.txt
-                    writeDependentToApprovalFile(writer, dependent);
-                    dependentRemoved = true; // Flag that the dependent has been removed
-                }
-    
-                // If we are currently processing the dependent block, skip writing it to workflow.txt
-                if (isSubmittingDependent) {
-                    if (line.startsWith("Relationship: ") && dependentRemoved) {
-                        isSubmittingDependent = false; // End the dependent block when we reach the end of it
+                if (line.isEmpty()) {
+                    // Process the collected block for a dependent
+                    if (isTargetDependent) {
+                        // Write only this specific dependent to workflow2.txt
+                        writeDependentToApprovalFile(writer, dependent);
+                        isTargetDependent = false; // Reset after writing
+                    } else {
+                        // Add the block back to the workflow data if it's not the target dependent
+                        updatedWorkflowData.add(currentBlock.toString().trim());
                     }
+                    // Reset for the next block
+                    currentBlock.setLength(0);
                 } else {
-                    // If not submitting, add the line to the updated data for workflow.txt
-                    updatedWorkflowData.add(line);
-                    // Preserve the newline between dependent blocks in workflow.txt
-                    if (line.startsWith("Relationship: ")) {
-                        updatedWorkflowData.add(""); // Add a newline after each dependent block
+                    // Check if this block corresponds to the target dependent
+                    if (line.startsWith("ANumber: ") && line.equals("ANumber: " + dependent.getANumber())) {
+                        isTargetDependent = true; // We found the target dependent
                     }
+                    currentBlock.append(line).append(System.lineSeparator());
                 }
             }
     
-            // Write the updated workflow.txt data (excluding the submitted dependent) back to workflow.txt
+            // Handle the last block (if the file doesn't end with a blank line)
+            if (currentBlock.length() > 0) {
+                if (isTargetDependent) {
+                    writeDependentToApprovalFile(writer, dependent); // Write the target dependent
+                } else {
+                    updatedWorkflowData.add(currentBlock.toString().trim());
+                }
+            }
+    
+            // Write the updated workflow.txt data back without the submitted dependent
             try (BufferedWriter writerUpdate = new BufferedWriter(new FileWriter(sourceFile))) {
-                for (String lineToWrite : updatedWorkflowData) {
-                    writerUpdate.write(lineToWrite);
+                for (String block : updatedWorkflowData) {
+                    writerUpdate.write(block);
+                    writerUpdate.newLine();
                     writerUpdate.newLine();
                 }
             }
     
-            // Optionally, notify the user
+            // Notify the user
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Dependent submitted to approval!");
             alert.showAndWait();
     
@@ -293,6 +316,7 @@ public class Review extends Application {
         }
     }
     
+
     private void writeDependentToApprovalFile(BufferedWriter writer, Dependent dependent) throws IOException {
         // Write the specific dependent's data to workflow2.txt
         writer.write("ANumber: " + dependent.getANumber());
